@@ -401,12 +401,16 @@
     }));
     $('dlBtn').onclick = download;
     $('shareBtn').onclick = share;
-    document.querySelectorAll('.amount-btn').forEach((b) => b.onclick = () => { setTipAmount(b.dataset.amount); });
+    document.querySelectorAll('.amount-btn').forEach((b) => b.onclick = (e) => {
+      if (!touchDevice()) e.preventDefault();
+      setTipAmount(b.dataset.amount);
+    });
     $('customAmount').addEventListener('input', (e) => {
       if (e.target.value) setTipAmount(e.target.value);
     });
     $('customUpiBtn').onclick = (e) => {
       if (!Number($('customAmount').value)) { e.preventDefault(); toast('Amount daalo pehle 🙂'); }
+      else if (!touchDevice()) e.preventDefault();
     };
     $('copyUpiBtn').onclick = copyUpiId;
     $('tipBtn').onclick = openTip;
