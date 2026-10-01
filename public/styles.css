@@ -76,6 +76,12 @@ main { max-width: 560px; margin: 0 auto; padding: 0 14px 30px; }
 .modal h3 { margin: 0 0 6px; }
 .x-close { position: absolute; right: 12px; top: 10px; border: 0; background: none; font-size: 18px; cursor: pointer; }
 .qr-wrap { text-align: center; margin: 8px 0; }
+.upi-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0; }
+.upi-choices .amount-btn { min-width: 0; }
+.custom-upi { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.custom-upi input { min-width: 0; padding: 11px 12px; border: 2px solid #f0dcc8; border-radius: 12px; font: inherit; font-size: 15px; }
+.custom-upi input:focus { outline: none; border-color: var(--gold); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .placeholder-note { background: #fff3cd; border: 1px dashed #c99a00; color: #6b5000; font-size: 12px; padding: 8px; border-radius: 8px; }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #2b1408; color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 14px; z-index: 50; width: max-content; max-width: 90vw; text-align: center; }
 h2 { font-size: 20px; }

@@ -199,13 +199,59 @@
   }
 
   // ---------- Tip ----------
+  function touchDevice() {
+    return navigator.maxTouchPoints > 0 || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  }
+
+  function upiLink(amount) {
+    const t = state.cfg.tip;
+    const n = Math.max(1, Math.min(100000, Math.round(Number(amount) || t.defaultAmount || 29)));
+    const enc = (v) => encodeURIComponent(String(v)).replace(/%40/g, '@');
+    return `upi://pay?pa=${enc(t.upiId)}&pn=${enc(t.upiPayeeName)}&am=${n}&cu=INR&tn=${encodeURIComponent('RishtaRoast chai')}`;
+  }
+
+  function setTipAmount(amount) {
+    const n = Math.max(1, Math.min(100000, Math.round(Number(amount) || state.cfg.tip.defaultAmount || 29)));
+    state.tipAmount = n;
+    const link = upiLink(n);
+    $('upiBtn').href = link;
+    $('upiQr').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(link)}`;
+    document.querySelectorAll('.amount-btn').forEach((b) => {
+      b.href = upiLink(b.dataset.amount);
+      b.setAttribute('aria-label', `Pay ₹${b.dataset.amount}`);
+      b.setAttribute('aria-pressed', String(Number(b.dataset.amount) === n));
+    });
+    const custom = $('customAmount');
+    if (document.activeElement !== custom && Number(custom.value) !== n) custom.value = '';
+    $('customUpiBtn').href = link;
+  }
+
+  function copyUpiId() {
+    const id = state.cfg.tip.upiId;
+    const fallback = () => {
+      const input = document.createElement('textarea');
+      input.value = id; input.setAttribute('readonly', ''); input.style.position = 'fixed'; input.style.opacity = '0';
+      document.body.appendChild(input); input.select();
+      try { document.execCommand('copy'); toast('UPI ID copy ho gaya ✅'); } catch (_) { toast(`UPI ID: ${id}`, 5000); }
+      input.remove();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(id).then(() => toast('UPI ID copy ho gaya ✅')).catch(fallback);
+    else fallback();
+  }
+
   function openTip() {
     const t = state.cfg.tip;
-    $('upiBtn').href = t.upiLink;
-    $('upiQr').src = '/upi-qr.svg'; // generated at build time by scripts/configure-static.js
-    $('rzpTipBtn').href = t.razorpayLink;
-    $('tipPlaceholder').hidden = !(t.upiIsPlaceholder || t.razorpayIsPlaceholder);
-    $('tipModal').showModal();
+    const touch = touchDevice();
+    const modal = $('tipModal');
+    modal.classList.toggle('touch-tip', touch);
+    $('upiChoices').hidden = false;
+    $('upiQrWrap').hidden = touch;
+    $('upiBtn').hidden = touch;
+    $('rzpTipBtn').hidden = !t.razorpayLink || t.razorpayIsPlaceholder;
+    $('rzpTipBtn').href = t.razorpayLink || '#';
+    $('tipPlaceholder').hidden = !t.upiIsPlaceholder;
+    setTipAmount(state.tipAmount || t.defaultAmount || 29);
+    modal.showModal();
   }
 
   // ---------- Pro (Razorpay checkout; stub until keys configured) ----------
@@ -306,9 +352,11 @@
       brandName: c.BRAND_NAME,
       siteUrl: c.SITE_URL,
       tip: {
-        upiLink: `upi://pay?pa=${enc(c.UPI_ID)}&pn=${enc(c.UPI_PAYEE_NAME)}&cu=INR&tn=${enc('Chai for ' + c.BRAND_NAME)}`,
+        upiId: c.UPI_ID,
+        upiPayeeName: c.UPI_PAYEE_NAME,
+        defaultAmount: 29,
         upiIsPlaceholder: isPh(c.UPI_ID),
-        razorpayLink: c.RAZORPAY_TIP_LINK,
+        razorpayLink: c.RAZORPAY_TIP_LINK || '',
         razorpayIsPlaceholder: isPh(c.RAZORPAY_TIP_LINK),
       },
       // checkoutLive / razorpayKeyId / demoUnlock come from the API (refreshApiConfig) when it is awake
@@ -353,6 +401,14 @@
     }));
     $('dlBtn').onclick = download;
     $('shareBtn').onclick = share;
+    document.querySelectorAll('.amount-btn').forEach((b) => b.onclick = () => { setTipAmount(b.dataset.amount); });
+    $('customAmount').addEventListener('input', (e) => {
+      if (e.target.value) setTipAmount(e.target.value);
+    });
+    $('customUpiBtn').onclick = (e) => {
+      if (!Number($('customAmount').value)) { e.preventDefault(); toast('Amount daalo pehle 🙂'); }
+    };
+    $('copyUpiBtn').onclick = copyUpiId;
     $('tipBtn').onclick = openTip;
     $('igBtn').onclick = async () => { await download(); toast('Saved! Instagram kholo → Story → image select karo → link sticker mein URL daalo 📲', 5000); };
     $('againBtn').onclick = () => { state.variant = (state.variant + 1) % 50; generate(); };

@@ -160,9 +160,18 @@ async function fillAndGenerate(page, { name = 'Vipul', city = 'Jaipur', work = '
 
   await tap(page, '#tipBtn');
   await page.waitForSelector('#tipModal[open]');
-  ok('A: UPI deep link', (await page.$eval('#upiBtn', (e) => e.getAttribute('href'))).startsWith('upi://pay?pa=PLACEHOLDER@upi'));
-  await page.waitForFunction(() => document.getElementById('upiQr').complete && document.getElementById('upiQr').naturalWidth > 0, { timeout: 5000 }).catch(() => {});
-  ok('A: static UPI QR loads', await page.$eval('#upiQr', (e) => e.naturalWidth > 0));
+  const mobileTip = await page.evaluate(() => ({
+    qrHidden: document.getElementById('upiQrWrap').hidden,
+    razorpayHidden: document.getElementById('rzpTipBtn').hidden,
+    amounts: [...document.querySelectorAll('.amount-btn')].map((e) => ({ amount: e.dataset.amount, href: e.getAttribute('href') })),
+    customHref: document.getElementById('customUpiBtn').getAttribute('href'),
+    copyVisible: !document.getElementById('copyUpiBtn').hidden,
+  }));
+  ok('A: mobile hides QR', mobileTip.qrHidden);
+  ok('A: Razorpay placeholder button hidden', mobileTip.razorpayHidden);
+  ok('A: mobile UPI preset deep links', mobileTip.amounts.every((x) => x.href.includes(`pa=PLACEHOLDER@upi`) && x.href.includes(`am=${x.amount}`) && x.href.includes('tn=RishtaRoast%20chai')));
+  ok('A: mobile custom UPI link', mobileTip.customHref.includes('pa=PLACEHOLDER@upi'));
+  ok('A: Copy UPI ID button visible', mobileTip.copyVisible);
   ok('A: placeholder warning shown', await page.$eval('#tipPlaceholder', (e) => !e.hidden));
   await page.screenshot({ path: path.join(SHOTS, '05-tip-modal.png') });
   await tap(page, '#tipModal .x-close');
@@ -197,6 +206,11 @@ async function fillAndGenerate(page, { name = 'Vipul', city = 'Jaipur', work = '
   await desk.reload({ waitUntil: 'networkidle0' });
   await sleep(400);
   await desk.screenshot({ path: path.join(SHOTS, '08-home-desktop.png') });
+  await desk.evaluate(() => { document.getElementById('result').hidden = false; document.getElementById('tipBtn').click(); });
+  await desk.waitForSelector('#tipModal[open]');
+  const desktopTip = await desk.evaluate(() => ({ qrHidden: document.getElementById('upiQrWrap').hidden, qrSrc: document.getElementById('upiQr').src, text: document.querySelector('#upiQrWrap .tiny').textContent }));
+  ok('A: desktop keeps QR with amount', !desktopTip.qrHidden && desktopTip.qrSrc.includes('am%3D29'));
+  ok('A: desktop QR instruction', desktopTip.text.includes('Phone se scan karo'));
   await desk.close();
 
   // =================== B) API STOPPED ===================
