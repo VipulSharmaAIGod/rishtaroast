@@ -99,7 +99,7 @@ Validated against Render's published JSON schema (`https://render.com/schema/ren
 - Created on 1 Oct 2026 in the Render workspace "Vipul's workspace" with the Render API (not as a Blueprint):
   - `rishtaroast` (static site, `srv-dautod7pn0mc7395cedg`)
   - `rishtaroast-api` (web service, free plan, Singapore, `srv-dauto9jncjis738acqm0`)
-- Both auto-deploy on every push to `main`.
+- Auto-deploy is set to "yes", but **pushes don't trigger deploys**: the public repo is cloned without Render's GitHub app, so no webhook exists. After pushing, deploy by hand (Render dashboard → Manual Deploy, or the `trigger_deploy` API), or install the Render GitHub app on the repo to get real auto-deploys.
 - Because they weren't created from the Blueprint, `render.yaml`'s extra settings are **not applied** (they can be added in the dashboard):
   - static headers `X-Frame-Options`, `Referrer-Policy`, and long-cache/`no-cache` rules (Render already sends `X-Content-Type-Options: nosniff`)
   - the `/privacy` redirect (not needed: Render serves `privacy.html` for `/privacy` anyway, and the links use `/privacy.html`)
