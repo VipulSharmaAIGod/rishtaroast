@@ -4,7 +4,9 @@ You type a name, city, job, "vibe" and one bad habit. The app makes a **funny ri
 ("Mummy ke hisaab se vs asli sach", salary as told to relatives, red flags, Mummy's verdict, a Rishta Score)
 and draws it as a **shareable image card**: a 1080×1920 story and a 1080×1080 square. Every free card has a big branded footer with the site URL, so each share sends people back to the site.
 
-> Status: **local only**. Nothing has been deployed or pushed, and no accounts or real keys have been used. Payment/UPI values are **PLACEHOLDERS**.
+> **Live (Render, free):** site https://rishtaroast.onrender.com · API https://rishtaroast-api.onrender.com (`/healthz`)
+> Repo: https://github.com/VipulSharmaAIGod/rishtaroast. No AI key or Razorpay keys are set yet, so cards use templates. UPI/Razorpay values are still **PLACEHOLDERS**.
+> Services were created directly (not from the Blueprint), so the custom headers, redirect and health-check path in `render.yaml` are **not** applied. See "Live deployment notes" below.
 
 ## Architecture (Render)
 ```
@@ -93,7 +95,20 @@ scripts/                    configure-static, static-server, e2e, test-api, mock
 
 Validated against Render's published JSON schema (`https://render.com/schema/render.yaml.json`).
 
-## Deploy steps (when ready; nothing has been done yet)
+## Live deployment notes
+- Created on 1 Oct 2026 in the Render workspace "Vipul's workspace" with the Render API (not as a Blueprint):
+  - `rishtaroast` (static site, `srv-dautod7pn0mc7395cedg`)
+  - `rishtaroast-api` (web service, free plan, Singapore, `srv-dauto9jncjis738acqm0`)
+- Both auto-deploy on every push to `main`.
+- Because they weren't created from the Blueprint, `render.yaml`'s extra settings are **not applied** (they can be added in the dashboard):
+  - static headers `X-Frame-Options`, `Referrer-Policy`, and long-cache/`no-cache` rules (Render already sends `X-Content-Type-Options: nosniff`)
+  - the `/privacy` redirect (not needed: Render serves `privacy.html` for `/privacy` anyway, and the links use `/privacy.html`)
+  - the API `healthCheckPath: /healthz`
+  - build filters
+- `PRO_TOKEN_SECRET` was generated locally and set on the API. It is not in the repo.
+- Live check: `node scripts/live-check.js` (headless; makes cards against the live site, including a test with the API blocked).
+
+## Deploy steps (reference / re-creating from the Blueprint)
 1. Create a **GitHub** repo and push this one (`git remote add origin … && git push -u origin main`). Not done.
 2. Render dashboard → **New → Blueprint** → pick the repo. Render reads `render.yaml` and **asks for the `sync: false` values**. You can enter the expected URLs straight away:
    - static `API_BASE_URL` = `https://rishtaroast-api.onrender.com`
