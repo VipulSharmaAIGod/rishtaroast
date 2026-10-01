@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+
+# secrets / local env (only .env.example is committed)
+.env
+.env.*
+!.env.example
+
+# local test artifacts (regenerate with `npm run e2e`)
+screenshots/
+samples/
+
+# misc
+npm-debug.log*
+.DS_Store
+*.log

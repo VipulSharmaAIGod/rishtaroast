@@ -1,0 +1,31 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="robots" content="noindex"/><link rel="stylesheet" href="/styles.css"/>
+<style>
+  body{margin:0;width:1200px;height:630px;overflow:hidden;background:linear-gradient(135deg,#FFF6E5,#FFD1E3);font-family:Poppins}
+  .wrap{display:flex;align-items:center;height:100%;padding:0 60px;gap:40px}
+  .txt{flex:1}
+  .txt h1{font-size:64px;line-height:1.05;margin:0 0 18px;font-weight:800;color:#2B1408}
+  .txt h1 span{color:#7A0C2E;background:linear-gradient(transparent 62%,#FFD166 62%)}
+  .txt p{font-size:28px;color:#7a5a45;margin:0 0 26px}
+  .url{display:inline-block;background:#7A0C2E;color:#FFD166;font-weight:800;font-size:34px;padding:12px 26px;border-radius:16px}
+  canvas{width:300px;border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.25);transform:rotate(3deg)}
+</style></head>
+<body><div class="wrap">
+  <div class="txt"><h1>Apna <span>Funny Rishta Biodata</span> banao 😂💍</h1><p>Mummy ke hisaab se vs asli sach — 10 second mein!</p><div class="url" id="url">rishtaroast.in</div></div>
+  <canvas id="c"></canvas>
+</div>
+<script src="/config.js"></script>
+<script src="/card.js"></script>
+<script>
+(async () => {
+  const cfg = { siteUrl: window.RR_CONFIG.SITE_URL, brandName: window.RR_CONFIG.BRAND_NAME };
+  document.getElementById('url').textContent = cfg.siteUrl.replace(/^https?:\/\//, '');
+  await RRCard.loadFonts();
+  RRCard.render(document.getElementById('c'), { name: 'Rahul', city: 'Indore', card: {
+    occupationTold: 'Google mein hain', occupationSach: 'Google mein nahi, Google pe sab search karte hain', salaryTold: '25 LPA (rishtedaaron ke liye)', salarySach: 'In-hand dekh ke HR bhi sorry bolta hai',
+    hobbies: 'Shaadi mein sirf menu dekhne jaana', khoobiyan: ['Shehar ki har chaat ki dukaan ka GPS dimaag mein', 'Mood off ho toh momos se therapy'], redFlags: ['"Late uthna" inke liye aadat nahi, lifestyle hai', '"Thoda sa taste karaunga" — aadhi plate gayab'],
+    mummyVerdict: 'Hamara bachcha laakhon mein ek hai — bas wo laakh abhi mile nahi', score: 8.4, scoreLine: 'Shortlist pakka — chai-samosa pe charcha 🫖', idealMatch: 'Jo 2 baje raat ko Maggi banane ko ready ho', tagline: 'Zomato follows my brother 🍕', closer: 'Real talk: jo bhi milega, lucky hoga ✨' } },
+    { format: 'story', theme: 'marigold', pro: false, siteUrl: cfg.siteUrl, brandName: cfg.brandName, scale: 0.6 });
+  document.body.dataset.ready = '1';
+})();
+</script></body></html>

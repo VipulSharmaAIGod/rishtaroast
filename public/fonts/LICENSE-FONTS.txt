@@ -1,0 +1,9 @@
+Fonts in this folder are subsetted WOFF2 builds of Google Fonts, all licensed under the
+SIL Open Font License, Version 1.1 (https://openfontlicense.org):
+
+  Poppins  (c) Indian Type Foundry      https://fonts.google.com/specimen/Poppins
+  Mukta    (c) Ek Type                  https://fonts.google.com/specimen/Mukta
+  Kalam    (c) Indian Type Foundry      https://fonts.google.com/specimen/Kalam
+
+Subsetting (fewer glyphs) is a permitted modification under the OFL; the fonts are bundled
+with the site and are not sold on their own.

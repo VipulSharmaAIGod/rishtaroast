@@ -1,0 +1,29 @@
+{
+  "name": "rishtaroast",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RishtaRoast - funny Hinglish shaadi biodata cards. Static site (public/) + optional API (server.js) for Render.",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "static": "node scripts/static-server.js 8080",
+    "configure-static": "node scripts/configure-static.js",
+    "test": "node scripts/test-api.js",
+    "e2e": "node scripts/e2e.js",
+    "og": "node scripts/make-og.js",
+    "mock-ai": "node scripts/mock-ai-server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.0.0"
+  }
+}

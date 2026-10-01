@@ -1,0 +1,134 @@
+# Render Blueprint for RishtaRoast  (https://render.com/docs/blueprint-spec)
+# Two services from this one repo:
+#   1) rishtaroast      - Static Site (free, global CDN, never sleeps). The whole app works from here alone.
+#   2) rishtaroast-api  - Web Service (free plan, Singapore). Optional AI + Pro endpoints; may sleep when idle.
+# Secrets use `sync: false` (Render prompts for them on first Blueprint creation; never commit them).
+# NOTE: static sites have no `plan`/`region` fields on Render (they're always free and served from the global CDN).
+
+services:
+  # ---------------------------------------------------------------- Static site
+  - type: web
+    runtime: static
+    name: rishtaroast
+    branch: main
+    # Installs only `qrcode` + small prod deps, then writes env values into public/config.js,
+    # canonical/OG tags, robots.txt, sitemap.xml and the UPI QR image.
+    buildCommand: npm ci --omit=dev && node scripts/configure-static.js
+    staticPublishPath: ./public
+    buildFilter:
+      paths:
+        - public/**
+        - scripts/configure-static.js
+        - package.json
+        - package-lock.json
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /fonts/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /config.js
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: redirect
+        source: /privacy
+        destination: /privacy.html
+    envVars:
+      - key: API_BASE_URL # URL of the rishtaroast-api service, e.g. https://rishtaroast-api.onrender.com
+        sync: false
+      - key: SITE_URL # this static site's URL or custom domain, e.g. https://rishtaroast.onrender.com
+        sync: false
+      - key: UPI_ID # your UPI VPA for tips, e.g. yourname@okhdfcbank
+        sync: false
+      - key: UPI_PAYEE_NAME
+        value: RishtaRoast
+      - key: RAZORPAY_TIP_LINK # optional Razorpay Payment Link/Page URL
+        sync: false
+      - key: PRO_ENABLED
+        value: "true"
+      - key: PRO_PRICE_INR
+        value: "29"
+      - key: PRO_VALIDITY_DAYS
+        value: "30"
+      - key: NODE_VERSION
+        value: "20"
+
+  # ---------------------------------------------------------------- API web service
+  - type: web
+    runtime: node
+    name: rishtaroast-api
+    plan: free
+    region: singapore
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    buildFilter:
+      paths:
+        - server.js
+        - lib/**
+        - public/shared/**
+        - package.json
+        - package-lock.json
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "20"
+      - key: ALLOWED_ORIGINS # comma-separated static site origin(s), e.g. https://rishtaroast.onrender.com,https://rishtaroast.in
+        sync: false
+      - key: TRUST_PROXY
+        value: "1"
+      # --- AI (optional; leave AI_API_KEY empty = template mode) ---
+      - key: AI_API_KEY
+        sync: false
+      - key: AI_BASE_URL
+        value: https://api.openai.com/v1
+      - key: AI_MODEL
+        value: gpt-4o-mini
+      - key: AI_MAX_TOKENS
+        value: "350"
+      - key: AI_TEMPERATURE
+        value: "0.95"
+      - key: AI_TIMEOUT_MS
+        value: "9000"
+      - key: AI_JSON_MODE
+        value: "true"
+      # --- cost controls ---
+      - key: AI_PER_IP_HOUR
+        value: "5"
+      - key: AI_PER_IP_DAY
+        value: "20"
+      - key: AI_PRO_PER_IP_DAY
+        value: "60"
+      - key: AI_GLOBAL_DAILY_CAP
+        value: "500"
+      - key: REQUESTS_PER_IP_HOUR
+        value: "60"
+      - key: CACHE_TTL_HOURS
+        value: "24"
+      - key: CACHE_MAX_ENTRIES
+        value: "5000"
+      # --- Pro (Razorpay checkout stays a stub until both keys are set) ---
+      - key: PRO_ENABLED
+        value: "true"
+      - key: PRO_PRICE_INR
+        value: "29"
+      - key: PRO_VALIDITY_DAYS
+        value: "30"
+      - key: PRO_TOKEN_SECRET
+        generateValue: true
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: PRO_DEMO_UNLOCK
+        value: "false"

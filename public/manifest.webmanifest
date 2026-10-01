@@ -1,0 +1,1 @@
+{ "name": "RishtaRoast", "short_name": "RishtaRoast", "start_url": "/", "display": "standalone", "background_color": "#FFF6E5", "theme_color": "#7A0C2E", "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }] }

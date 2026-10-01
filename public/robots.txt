@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://rishtaroast.onrender.com/sitemap.xml
